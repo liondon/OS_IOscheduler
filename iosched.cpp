@@ -4,14 +4,16 @@
 #include <vector>
 using namespace std;
 
-// #include "Scheduler.h"
+#include "Scheduler.h"
+#include "Request.h"
 
 int main()
 {
   int currTime = 0;
-  vector<pair<int, int>> arrivals;
+  vector<Request *> arrivals;
   int idx = 0;
-  // Scheduler *sched;
+  Scheduler *sched = new FIFO();
+  int currIOReq = 0, head = 0;
 
   ifstream inputfile;
   inputfile.open("./94_lab4_assign/input0");
@@ -29,29 +31,49 @@ int main()
         continue;
       }
       vector<string> tokens(sregex_token_iterator(str.begin(), str.end(), delimiter, -1), {});
-      arrivals.push_back(make_pair(stoi(tokens[0]), stoi(tokens[1])));
+      Request *req = new Request(stoi(tokens[0]), stoi(tokens[1]));
+      arrivals.push_back(req);
     }
   }
-  // for (auto p : arrivals)
-  // {
-  //   cout << p.first << " " << p.second << endl;
-  // }
+  for (auto req : arrivals)
+  {
+    cout << req->arrivalTime << " " << req->target << endl;
+  }
 
-  // a loop increments simulation time by one and checks whether any action is to be taken.
+  // // a loop increments simulation time by one and checks whether any action is to be taken.
   // while (true)
   // {
-  //   // 1) If a new I/O arrived to the system at this current time → add request to IO-queue ?
-  //   // if (currTime == arrivals[idx].first)
-  //   // {
-  //   //   sched->insert(arrivals[idx].second);
-  //   //   idx++;
-  //   // }
+  //   // 1) If a new I/O arrived to the system at current time
+  //   if (currTime == arrivals[idx]->arrivalTime)
+  //   {
+  //     // add request to IO-queue
+  //     sched->insertIOQ(arrivals[idx]);
+  //     idx++;
+  //   }
 
-  //   // 2) If an IO is active and completed at this time → Compute relevant info and store in IO request for final summary
+  //   // 2) If an IO is active and completed at this time
+  //   if (currIOReq == head)
+  //   {
+  //     // Compute relevant info and store in IO request for final summary
+  //   }
 
   //   // 3) If an IO is active but did not yet complete → Move the head by one sector/track/unit in the direction it is going (to simulate seek)
-  //   // 4) If no IO request active now (after (2)) but IO requests are pending → Fetch the next request and start the new IO.
-  //   // 5) If no IO request is active now and no IO requests pending → exit simulation
+
+  //   // 4) If no IO request active now (after (2)) but IO requests are pending
+  //   if (!currIOReq && !sched->IOQ.empty())
+  //   {
+  //     // Fetch the next request
+  //     currIOReq = sched->getNextReq();
+
+  //     // start the new IO
+  //   }
+
+  //   // 5) If no IO request is active now and no IO requests pending
+  //   if (!currIOReq && sched->IOQ.empty())
+  //   {
+  //     // exit simulation
+  //     break;
+  //   }
 
   //   // 6) Increment time by 1
   //   currTime++;
