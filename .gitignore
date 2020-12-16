@@ -1,0 +1,12 @@
+94_lab4_assign.tar.Z
+/94_lab4_assign
+/testdata
+test.*
+
+/.vagrant
+ubuntu-bionic-18.04-cloudimg-console.log
+/.vscode
+
+*.exe
+*.zip
+
