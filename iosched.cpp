@@ -17,6 +17,7 @@ int main()
   Scheduler *sched = new SSTF();
   Request *currIOReq = nullptr;
   int i = 0;
+  int total_move = 0;
 
   // parsing input and get all the requests
   ifstream inputfile;
@@ -83,6 +84,7 @@ int main()
       //      << endl;
       // Move the head by one sector/track/unit in the direction it is going (to simulate seek)
       sched->moveHead(head, currIOReq->target);
+      total_move++;
     }
 
     // 4) If no IO request active now (after (2)) but IO requests are pending
@@ -119,14 +121,31 @@ int main()
     currTime++;
   }
 
+  int total_turnaround = 0, total_waittime = 0, max_waittime = 0;
+  double avg_turnaround = 0, avg_waittime = 0;
   for (size_t i = 0; i < requests.size(); i++)
   {
-    // printf("%5d: %5d %5d %5d\n"
+    // printf("%5d: %5d %5d %5d\n"...);
+    total_turnaround += (requests[i]->endTime - requests[i]->arrivalTime);
+    int waittime = (requests[i]->startTime - requests[i]->arrivalTime);
+    max_waittime = max(max_waittime, waittime);
+    total_waittime += waittime;
     cout << setw(5) << i << ": "
          << setw(5) << requests[i]->arrivalTime << " "
          << setw(5) << requests[i]->startTime << " "
          << setw(5) << requests[i]->endTime << endl;
   }
+  avg_turnaround = static_cast<double>(total_turnaround) / requests.size();
+  avg_waittime = static_cast<double>(total_waittime) / requests.size();
+
+  // printf("SUM: %d %d %.2lf %.2lf %d\n"...);
+  cout
+      << "SUM: "
+      << setw(1) << currTime << " "
+      << setw(1) << total_move << " "
+      << setw(2) << avg_turnaround << " "
+      << setw(2) << avg_waittime << " "
+      << setw(1) << max_waittime << endl;
 
   return 0;
 }
