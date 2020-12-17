@@ -13,12 +13,13 @@ public:
   virtual void insertIOQ(Request *) = 0;
   virtual Request *getNextReq() = 0;
   virtual void moveHead(int &, int) = 0;
-  deque<Request *> IOQ;
   //using vector + idx is probably more space-optimized?
 
 private:
 };
 
+
+//////////////////////////// F I F O //////////////////////////
 class FIFO : public Scheduler
 {
 public:
@@ -27,6 +28,7 @@ public:
   void moveHead(int &, int);
 
 private:
+  deque<Request *> IOQ;
 };
 
 Request *FIFO::getNextReq()
@@ -60,5 +62,6 @@ void FIFO::moveHead(int &head, int target)
   }
   return;
 }
+//////////////////////////////////////////////////////////////////
 
 #endif

@@ -54,7 +54,7 @@ int main()
       // cout << currTime << ": "
       //      << "arrivalRequest=" << requests[reqIdx]->arrivalTime
       //      << endl;
-      // add request to IO-queue
+      // add request to IO - queue
       sched->insertIOQ(requests[reqIdx++]);
     }
 
@@ -86,28 +86,33 @@ int main()
     }
 
     // 4) If no IO request active now (after (2)) but IO requests are pending
-    if (currIOReq == nullptr && !sched->IOQ.empty())
+    if (currIOReq == nullptr)
     {
       // cout << currTime << ": "
       //      << "head=" << head
       //      << endl;
       // Fetch the next request
       currIOReq = sched->getNextReq();
-      // cout << "next request get! "
-      //      << "head=" << head
-      //      << "target=" << currIOReq->target
-      //      << endl;
+      if (currIOReq != nullptr)
+      {
+        // cout << "next request get! "
+        //      << "head=" << head
+        //      << "target=" << currIOReq->target
+        //      << endl;
 
-      // start the new IO
-      currIOReq->startTime = currTime;
-      continue;
-    }
-
-    // 5) If no IO request is active now and no IO requests pending
-    if (currIOReq == nullptr && reqIdx == requests.size())
-    {
-      // exit simulation
-      break;
+        // start the new IO
+        currIOReq->startTime = currTime;
+        continue;
+      }
+      else
+      {
+        // 5) If no IO request is active now and no IO requests pending
+        if (reqIdx == requests.size())
+        {
+          // exit simulation
+          break;
+        }
+      }
     }
 
     // 6) Increment time by 1
