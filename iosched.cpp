@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
+int head = 0;
 #include "Scheduler.h"
 #include "Request.h"
 
@@ -13,9 +14,8 @@ int main()
   int currTime = 0;
   vector<Request *> requests;
   int reqIdx = 0;
-  Scheduler *sched = new FIFO();
+  Scheduler *sched = new SSTF();
   Request *currIOReq = nullptr;
-  int head = 0;
   int i = 0;
 
   // parsing input and get all the requests
