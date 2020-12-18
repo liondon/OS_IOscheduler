@@ -30,7 +30,92 @@ void Scheduler::moveHead(int &head, int target)
   }
   return;
 }
-//////////////////////////// C L O O K //////////////////////////
+/////////////////////////// F L O O K /////////////////////////
+class FLOOK : public Scheduler
+{
+public:
+  void insertIOQ(Request *) override;
+  Request *getNextReq() override;
+  FLOOK() : IOQ1(), IOQ2(), activeQ(&IOQ1), addQ(&IOQ2), seekGreater(1) {}
+
+private:
+  multimap<int, Request *> IOQ1, IOQ2, *activeQ, *addQ;
+  // could've use <set> to save space, using <map> here to simplify the code...
+  bool seekGreater;
+};
+
+Request *FLOOK::getNextReq()
+{
+  if (DEBUG)
+  {
+    cout << "////// DEBUG: avtiveQ is now... //////" << endl;
+    for (auto p : *activeQ)
+    {
+      cout << p.second->arrivalTime << ": " << p.second->target << endl;
+    }
+    cout << "//////////////////////////////////////" << endl;
+  }
+
+  // when active-queue is empty, the queues are swapped (pointers !!)
+  // and tried one more time.
+  if (activeQ->empty())
+  {
+    swap(activeQ, addQ);
+    // When switching queues in FLOOK you always continue in the direction you were going from the current position, until the queue is empty.
+    // Then you switch direction until empty and then switch the queues continuing into that direction and so forth.
+  }
+
+  // I/O is only scheduled from active-queue
+  if (!activeQ->empty())
+  {
+    auto iter = activeQ->lower_bound(head);
+
+    // check if there exist req targeted at head: log(n)
+    if (iter != activeQ->end() && iter->first == head)
+    {
+      return activeQ->extract(iter).mapped();
+    }
+
+    if (seekGreater)
+    {
+      // check if there's another req at the seek direction
+      if (iter == activeQ->end())
+      {
+        // if no, change direction
+        seekGreater = !seekGreater;
+        // when there's req with same target, FCFS.
+        iter = activeQ->find((--iter)->first);
+      }
+      return activeQ->extract(iter).mapped();
+    }
+
+    if (!seekGreater)
+    {
+      // check if there's another req at the seek direction
+      if (iter == activeQ->begin())
+      {
+        // if no, change direction
+        seekGreater = !seekGreater;
+      }
+      else
+      {
+        // when there's req with same target, FCFS.
+        iter = activeQ->find((--iter)->first);
+      }
+      return activeQ->extract(iter).mapped();
+    }
+  }
+  return nullptr;
+}
+
+void FLOOK::insertIOQ(Request *req)
+{
+  // any new I/O request is entered into add_queue.
+  addQ->emplace(req->target, req);
+  return;
+}
+///////////////////////////////////////////////////////////////
+/////////////////////////// C L O O K /////////////////////////
 class CLOOK : public Scheduler
 {
 public:
