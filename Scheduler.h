@@ -4,7 +4,6 @@
 #include <iostream>
 #include <deque>
 #include <map>
-
 using namespace std;
 
 #include "Request.h"
@@ -31,78 +30,125 @@ void Scheduler::moveHead(int &head, int target)
   }
   return;
 }
+//////////////////////////// C L O O K //////////////////////////
+class CLOOK : public Scheduler
 {
 public:
-  void insertIOQ(Request *);
-  Request *getNextReq();
-  void moveHead(int &, int);
+  void insertIOQ(Request *) override;
+  Request *getNextReq() override;
 
 private:
   multimap<int, Request *> IOQ;
   // could've use <set> to save space, using <map> here to simplify the code...
 };
 
-Request *SSTF::getNextReq()
+Request *CLOOK::getNextReq()
 {
-  cout << "DEBUG: IOQ is now..." << endl;
-  for (auto p : IOQ)
+  if (DEBUG)
   {
-    cout << p.second->arrivalTime << ": " << p.second->target << endl;
+    cout << "//////// DEBUG: IOQ is now... ////////" << endl;
+    for (auto p : IOQ)
+    {
+      cout << p.second->arrivalTime << ": " << p.second->target << endl;
+    }
+    cout << "//////////////////////////////////////" << endl;
   }
 
   if (!IOQ.empty())
   {
-    // check if there exist req targeted at head: log(n)
-    auto iter = IOQ.find(head);
-    if (iter != IOQ.end())
+    auto iter = IOQ.lower_bound(head);
+
+    // check if there's another req
+    if (iter == IOQ.end())
     {
-      // ele with key=head already exist!
+      // if no, wrapup
+      iter = IOQ.begin();
+    }
+    return IOQ.extract(iter).mapped();
+  }
+  return nullptr;
+}
+
+void CLOOK::insertIOQ(Request *req)
+{
+  IOQ.emplace(req->target, req);
+  return;
+}
+///////////////////////////////////////////////////////////////
+//////////////////////////// L O O K //////////////////////////
+class LOOK : public Scheduler
+{
+public:
+  void insertIOQ(Request *) override;
+  Request *getNextReq() override;
+  LOOK() : IOQ(), seekGreater(1) {}
+
+private:
+  multimap<int, Request *> IOQ;
+  // could've use <set> to save space, using <map> here to simplify the code...
+  bool seekGreater;
+};
+
+Request *LOOK::getNextReq()
+{
+  if (DEBUG)
+  {
+    cout << "//////// DEBUG: IOQ is now... ////////" << endl;
+    for (auto p : IOQ)
+    {
+      cout << p.second->arrivalTime << ": " << p.second->target << endl;
+    }
+    cout << "//////////////////////////////////////" << endl;
+  }
+
+  if (!IOQ.empty())
+  {
+    auto iter = IOQ.lower_bound(head);
+
+    // check if there exist req targeted at head: log(n)
+    if (iter != IOQ.end() && iter->first == head)
+    {
       return IOQ.extract(iter).mapped();
     }
-    else
+
+    if (seekGreater)
     {
-      // helper ele with key=head inserted!
-      const auto iter_dum = IOQ.insert(make_pair(head, nullptr));
-      iter = iter_dum;
-      int low = numeric_limits<int>::max(), up = numeric_limits<int>::max();
-      Request *req = nullptr;
-      if (++iter != IOQ.end())
+      // check if there's another req at the seek direction
+      if (iter == IOQ.end())
       {
-        // get the one after the head
-        up = (iter)->first - head;
-        req = iter->second;
+        // if no, change direction
+        seekGreater = !seekGreater;
+        // when there's req with same target, FCFS.
+        iter = IOQ.find((--iter)->first);
       }
-      iter--;
-      if (iter != IOQ.begin())
+      return IOQ.extract(iter).mapped();
+    }
+
+    if (!seekGreater)
+    {
+      // check if there's another req at the seek direction
+      if (iter == IOQ.begin())
       {
-        // get the one before the head
-        low = head - (--iter)->first;
-      }
-      if (up >= low) // TODO: < or <= ? same direction?
-      {
-        iter = IOQ.find(iter->first);
-        req = iter->second;
+        // if no, change direction
+        seekGreater = !seekGreater;
       }
       else
       {
-        iter = iter_dum;
-        iter++;
+        // when there's req with same target, FCFS.
+        iter = IOQ.find((--iter)->first);
       }
-
-      // delete the dummy node & the popped node: log(n)
-      IOQ.erase(iter);
-      IOQ.erase(iter_dum);
-      return req;
+      return IOQ.extract(iter).mapped();
     }
   }
   return nullptr;
 }
 
-void SSTF::insertIOQ(Request *req)
+void LOOK::insertIOQ(Request *req)
 {
   IOQ.emplace(req->target, req);
   return;
 }
+///////////////////////////////////////////////////////////////
 //////////////////////////// S S T F //////////////////////////
 class SSTF : public Scheduler
 {
