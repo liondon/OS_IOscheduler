@@ -1,17 +1,18 @@
-#ifndef REQUEST
-#define REQUEST
+#ifndef REQUEST_H
+#define REQUEST_H
 
 class Request
 {
 public:
   Request(int, int);
-  int arrivalTime, target, startTime, endTime;
+  int id, arrivalTime, target, startTime, endTime;
 
 private:
+  inline static int i;
 };
 
 Request::Request(int a, int t)
-    : arrivalTime(a), target(t), startTime(0), endTime(0)
+    : id(i++), arrivalTime(a), target(t), startTime(0), endTime(0)
 {
 }
 
