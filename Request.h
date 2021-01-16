@@ -1,6 +1,8 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
+// TODO: the implementation should be put to .cpp
+
 class Request
 {
 public:

@@ -1,0 +1,7 @@
+gradeit.sh ./outputs/ ./studout/lih328/ ./studout/lih328//LOG
+diff -b -q ./outputs//out_12_j ./studout/lih328//out_12_j failed
+   DIR1-SUM ==> SUM: 76 70 5.27 2.93 16
+   DIR2-SUM ==> SUM: 78 72 6.40 4.00 24
+diff -b -q ./outputs//out_14_j ./studout/lih328//out_14_j failed
+   DIR1-SUM ==> SUM: 124374 123917 749.98 625.94 4424
+   DIR2-SUM ==> SUM: 124374 123913 743.03 618.99 4424

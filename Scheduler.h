@@ -8,28 +8,17 @@ using namespace std;
 
 #include "Request.h"
 
+// TODO: the implementation should be put to .cpp
+
 class Scheduler
 {
 public:
   virtual void insertIOQ(Request *) = 0;
   virtual Request *getNextReq() = 0;
-  virtual void moveHead(int &, int);
 
 private:
 };
 
-void Scheduler::moveHead(int &head, int target)
-{
-  if (target > head)
-  {
-    head++;
-  }
-  else
-  {
-    head--;
-  }
-  return;
-}
 /////////////////////////// F L O O K /////////////////////////
 class FLOOK : public Scheduler
 {
@@ -248,6 +237,7 @@ private:
 
 Request *SSTF::getNextReq()
 {
+  // TODO: how to modulize this logging?
   if (DEBUG)
   {
     cout << "//////// DEBUG: IOQ is now... ////////" << endl;

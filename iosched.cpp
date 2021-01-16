@@ -12,17 +12,24 @@ int head = 0;
 #include "Scheduler.h"
 #include "Request.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  Scheduler *sched = new LOOK();
-  string inputPath = "./94_lab4_assign/input3";
+  // config
+  Scheduler *sched = nullptr;
+  char *inputPath;
 
+  // simulation control
   vector<Request *> *requests;
   int reqIdx = 0;
   Request *currIOReq = nullptr;
+
   // statistics
-  int currTime = 0, total_move = 0, total_turnaround = 0, total_waittime = 0, max_waittime = 0;
+  int currTime = 0, total_move = 0,
+      total_turnaround = 0, total_waittime = 0, max_waittime = 0;
   double avg_turnaround = 0, avg_waittime = 0;
+
+  // setup config from command arguments
+  setupConfig(argc, argv, inputPath, sched);
 
   // input Parser: parsing input and get all the requests
   requests = createRequests(inputPath);
@@ -81,7 +88,14 @@ int main()
              << endl;
       }
       // Move the head by one sector/track/unit in the direction it is going (to simulate seek)
-      sched->moveHead(head, currIOReq->target);
+      if (currIOReq->target > head)
+      {
+        head++;
+      }
+      else
+      {
+        head--;
+      }
       total_move++;
     }
 
